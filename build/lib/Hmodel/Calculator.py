@@ -41,6 +41,9 @@ class ToyModelCalculator(calc.Calculator):
         # Crystal field in HARTREE /BOHR
         self.E = np.linspace(0, 0.06, 15)[1]
         
+        # An harmonic constant in HARTREE/BOHR^2
+        self.k_harm = 2. * self.H2_a **2 * self.H2_D
+        
     def minimum(self):
         """
         Get the minimum of the full potential since this can be done analitycally
@@ -75,21 +78,30 @@ class ToyModelCalculator(calc.Calculator):
         # Position in ANGSTROM converted in BOHR, np.array with shape = (1, 3)
         coords = atoms.get_positions() * units.A_TO_BOHR
         
-        # Get the relative coordinate
-        rel_coord =  np.sqrt(coords[0,:]**2)
+#         # Get the relative coordinate
+#         rel_coord =  np.sqrt(coords[0,:]**2)
         
-        # Get the radial distance
-        r         = np.sqrt(np.sum(rel_coord**2))
+#         # Get the radial distance
+#         r         = np.sqrt(np.sum(rel_coord**2))
         
-        # Get the energy in HARTREE subtrating the minimum of the Morse + crystal field potential
-        energy = self.H2_shift + self.H2_D * (1. - np.exp(-self.H2_a * (r - self.H2_re)))**2 + self.E * coords[0,2] - self.minimum()
+#         # Get the energy in HARTREE subtrating the minimum of the Morse + crystal field potential
+#         energy = self.H2_shift + self.H2_D * (1. - np.exp(-self.H2_a * (r - self.H2_re)))**2 + self.E * coords[0,2] - self.minimum()
         
-        # Derivative with respect the radial distance
-        diff_V_r = 2. * self.H2_a * self.H2_D * (1. - np.exp(-self.H2_a * (r - self.H2_re))) * np.exp(-self.H2_a * (r - self.H2_re))
+#         # Derivative with respect the radial distance
+#         diff_V_r = 2. * self.H2_a * self.H2_D * (1. - np.exp(-self.H2_a * (r - self.H2_re))) * np.exp(-self.H2_a * (r - self.H2_re))
         
-        # Get the forces for the first particle in HARTREE /BOHR
-        force[0,:]  = - diff_V_r * coords /r
-        force[0,2] += - self.E
+#         # Get the forces for the first particle in HARTREE /BOHR
+#         force[0,:]  = - diff_V_r * coords /r
+#         force[0,2] += - self.E
+
+
+        energy = 0.5 * self.k_harm * coords[0,0]**2 + 0.5 * self.k_harm * coords[0,1]**2 + 0.5 * self.k_harm * (coords[0,2] + self.H2_re)**2 
+    
+        force[0,0] = - self.k_harm * coords[0,0]
+        
+        force[0,1] = - self.k_harm * coords[0,1]
+        
+        force[0,2] = - self.k_harm * (coords[0,2] + self.H2_re)
 
         
         # CONVERT from HARTREE, HARTREE /BOHR in -> eV, eV /ANGSTROM
