@@ -15,7 +15,7 @@ class ToyModelCalculator(calc.Calculator):
         """
         Computes the potential and forces for an H atom:
         
-            V(r) = H2_shift + H2_D * {1 - exp[- H2_a * (r - H2_re)]}^2 + E * x,
+            V(r) = H2_shift + H2_D * {1 - exp[- H2_a * (r - H2_re)]}^2 + E * x  - V_min,
         
             where r = |(x,y,z)|.
         """
@@ -72,7 +72,7 @@ class ToyModelCalculator(calc.Calculator):
         # Energy and force in HARTREE and HARTREE/BOHR
         energy, force = 0., np.zeros((1,3), dtype = np.double)
 
-        # Position in ANGSTROM converted in BOHR, np.array with shape = (2, 3)
+        # Position in ANGSTROM converted in BOHR, np.array with shape = (1, 3)
         coords = atoms.get_positions() * units.A_TO_BOHR
         
         # Get the relative coordinate
