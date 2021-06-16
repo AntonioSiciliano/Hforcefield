@@ -32,10 +32,10 @@ class ToyModelCalculator(calc.Calculator):
         # Depth of the potential in HARTREE
         self.H2_D     =  0.13681332
         
-        # The force constant of the potential in  1/BOHR
+        # The force constant of the potential in 1/BOHR
         self.H2_a     =  1.21606669
         
-        # The equilibrium bond lenght  in BOHR
+        # The equilibrium bond lenght in BOHR
         self.H2_re    =  1.21606669
         
         # Crystal field in HARTREE /BOHR
@@ -78,6 +78,10 @@ class ToyModelCalculator(calc.Calculator):
         # Position in ANGSTROM converted in BOHR, np.array with shape = (1, 3)
         coords = atoms.get_positions() * units.A_TO_BOHR
         
+        ####################
+        # ROTATIONAL MODEL #
+        ####################
+        
 #         # Get the relative coordinate
 #         rel_coord =  np.sqrt(coords[0,:]**2)
         
@@ -94,7 +98,11 @@ class ToyModelCalculator(calc.Calculator):
 #         force[0,:]  = - diff_V_r * coords /r
 #         force[0,2] += - self.E
 
-
+        
+        #####################
+        # VIBRATIONAL MODEL #
+        #####################
+        
         energy = 0.5 * self.k_harm * coords[0,0]**2 + 0.5 * self.k_harm * coords[0,1]**2 + 0.5 * self.k_harm * (coords[0,2] + self.H2_re)**2 
     
         force[0,0] = - self.k_harm * coords[0,0]
