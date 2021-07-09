@@ -11,7 +11,7 @@ import cellconstructor.Units as units
 
 class ToyModelCalculator(calc.Calculator):
 
-    def __init__(self,  *args, **kwargs):
+    def __init__(self, model = 'rotating',  *args, **kwargs):
         """
         Computes the potential and forces for an H atom:
         
@@ -23,6 +23,9 @@ class ToyModelCalculator(calc.Calculator):
         
         # Setup what properties the calculator can load
         self.implemented_properties = ["energy", "forces"]
+        
+        # Chose between 'rotating' and 'vibrating'
+        self.model = model
         
         # Parameters of the Morse potential in ATOMIC UNITS
         
@@ -39,7 +42,7 @@ class ToyModelCalculator(calc.Calculator):
         self.H2_re    =  1.21606669
         
         # Crystal field in HARTREE /BOHR
-        self.E = np.linspace(0, 0.06, 15)[1]
+        self.E = np.linspace(0., 0.001, 10)[1]
         
         # An harmonic constant in HARTREE/BOHR^2
         self.k_harm = 2. * self.H2_a **2 * self.H2_D
@@ -78,38 +81,40 @@ class ToyModelCalculator(calc.Calculator):
         # Position in ANGSTROM converted in BOHR, np.array with shape = (1, 3)
         coords = atoms.get_positions() * units.A_TO_BOHR
         
-        ####################
-        # ROTATIONAL MODEL #
-        ####################
         
-#         # Get the relative coordinate
-#         rel_coord =  np.sqrt(coords[0,:]**2)
-        
-#         # Get the radial distance
-#         r         = np.sqrt(np.sum(rel_coord**2))
-        
-#         # Get the energy in HARTREE subtrating the minimum of the Morse + crystal field potential
-#         energy = self.H2_shift + self.H2_D * (1. - np.exp(-self.H2_a * (r - self.H2_re)))**2 + self.E * coords[0,2] - self.minimum()
-        
-#         # Derivative with respect the radial distance
-#         diff_V_r = 2. * self.H2_a * self.H2_D * (1. - np.exp(-self.H2_a * (r - self.H2_re))) * np.exp(-self.H2_a * (r - self.H2_re))
-        
-#         # Get the forces for the first particle in HARTREE /BOHR
-#         force[0,:]  = - diff_V_r * coords /r
-#         force[0,2] += - self.E
+        if self.model == 'rotating':
+            ####################
+            # ROTATIONAL MODEL #
+            ####################
 
-        
-        #####################
-        # VIBRATIONAL MODEL #
-        #####################
-        
-        energy = 0.5 * self.k_harm * coords[0,0]**2 + 0.5 * self.k_harm * coords[0,1]**2 + 0.5 * self.k_harm * (coords[0,2] + self.H2_re)**2 
-    
-        force[0,0] = - self.k_harm * coords[0,0]
-        
-        force[0,1] = - self.k_harm * coords[0,1]
-        
-        force[0,2] = - self.k_harm * (coords[0,2] + self.H2_re)
+#             # Get the relative coordinate
+#             rel_coord =  np.sqrt(coords[0,:]**2)
+
+            # Get the radial distance
+            r = np.sqrt(np.sum(coords[0,:]**2))
+
+            # Get the energy in HARTREE subtrating the minimum of the Morse + crystal field potential
+            energy = self.H2_shift + self.H2_D * (1. - np.exp(-self.H2_a * (r - self.H2_re)))**2 + self.E * coords[0,2] - self.minimum()
+
+            # Derivative with respect the radial distance
+            diff_V_r = 2. * self.H2_a * self.H2_D * (1. - np.exp(-self.H2_a * (r - self.H2_re))) * np.exp(-self.H2_a * (r - self.H2_re))
+
+            # Get the forces for the first particle in HARTREE /BOHR
+            force[0,:]  = - diff_V_r * coords /r
+            force[0,2] += - self.E
+
+        else:
+            #####################
+            # VIBRATIONAL MODEL #
+            #####################
+
+            energy = 0.5 * self.k_harm * coords[0,0]**2 + 0.5 * self.k_harm * coords[0,1]**2 + 0.5 * self.k_harm * (coords[0,2] + self.H2_re)**2 
+
+            force[0,0] = - self.k_harm * coords[0,0]
+
+            force[0,1] = - self.k_harm * coords[0,1]
+
+            force[0,2] = - self.k_harm * (coords[0,2] + self.H2_re)
 
         
         # CONVERT from HARTREE, HARTREE /BOHR in -> eV, eV /ANGSTROM
