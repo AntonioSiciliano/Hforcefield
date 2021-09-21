@@ -13,11 +13,15 @@ class ToyModelCalculator(calc.Calculator):
 
     def __init__(self, model = 'rotating',  *args, **kwargs):
         """
-        Computes the potential and forces for an H atom:
+        Computes the potential and forces for an H atom using one of the two potentials:
         
-            V(r) = H2_shift + H2_D * {1 - exp[- H2_a * (r - H2_re)]}^2 + E * x  - V_min,
+           a) V(r) = H2_shift + H2_D * {1 - exp[- H2_a * (r - H2_re)]}^2 + E * x  - V_min,
         
-            where r = |(x,y,z)|.
+              where r = |(x,y,z)|;
+            
+           b) V(x,y,x) = 0.5 * k * x**2 + 0.5 * k * y**2  + 0.5 * k * (z + H2_re)**2 
+            
+              where k = 2 * H2_a^2 * H2_D.
         """
         calc.Calculator.__init__(self, *args, **kwargs)
         
@@ -83,27 +87,26 @@ class ToyModelCalculator(calc.Calculator):
         
         
         if self.model == 'rotating':
+            
             ####################
             # ROTATIONAL MODEL #
             ####################
-
-#             # Get the relative coordinate
-#             rel_coord =  np.sqrt(coords[0,:]**2)
 
             # Get the radial distance
             r = np.sqrt(np.sum(coords[0,:]**2))
 
             # Get the energy in HARTREE subtrating the minimum of the Morse + crystal field potential
-            energy = self.H2_shift + self.H2_D * (1. - np.exp(-self.H2_a * (r - self.H2_re)))**2 + self.E * coords[0,2] - self.minimum()
+            energy = self.H2_shift + self.H2_D * (1. - np.exp(-self.H2_a * (r - self.H2_re)))**2 + self.E * coords[0,1] - self.minimum()
 
             # Derivative with respect the radial distance
             diff_V_r = 2. * self.H2_a * self.H2_D * (1. - np.exp(-self.H2_a * (r - self.H2_re))) * np.exp(-self.H2_a * (r - self.H2_re))
 
             # Get the forces for the first particle in HARTREE /BOHR
             force[0,:]  = - diff_V_r * coords /r
-            force[0,2] += - self.E
+            force[0,1] += - self.E
 
         else:
+            
             #####################
             # VIBRATIONAL MODEL #
             #####################
