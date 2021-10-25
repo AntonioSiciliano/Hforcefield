@@ -111,13 +111,13 @@ class ToyModelCalculator(calc.Calculator):
             # VIBRATIONAL MODEL #
             #####################
 
-            energy = 0.5 * self.k_harm * coords[0,0]**2 + 0.5 * self.k_harm * coords[0,1]**2 + 0.5 * self.k_harm * (coords[0,2] + self.H2_re)**2 
+            energy = 0.5 * self.k_harm * (coords[0,0] + self.H2_re)**2  + 0.5 * self.k_harm * coords[0,1]**2 + 0.5 * self.k_harm * coords[0,2]**2 
 
-            force[0,0] = - self.k_harm * coords[0,0]
+            force[0,0] = - self.k_harm * (coords[0,0] + self.H2_re)
 
             force[0,1] = - self.k_harm * coords[0,1]
 
-            force[0,2] = - self.k_harm * (coords[0,2] + self.H2_re)
+            force[0,2] = - self.k_harm * coords[0,2] 
 
         
         # CONVERT from HARTREE, HARTREE /BOHR in -> eV, eV /ANGSTROM
