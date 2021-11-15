@@ -37,11 +37,8 @@ def test_forces():
     NLensemble = NLE.NonLinearEnsemble(Cart_dyn, T0, Cart_dyn.GetSupercell())
 
     initial_pos = np.zeros((1,1,3))
-    if ff_calculator.model == 'rotating':
-        initial_pos[0,0,:] = np.array([-re, 0., 0.])
-    else:
-        initial_pos[0,0,:] = np.array([0., 0., -re])
-
+    
+    initial_pos[0,0,:] = np.array([-re, 0., 0.])
 
     # GENERATE THE ENSEMBLE
     NLensemble.generate_nonlinear_ensemble(1, evenodd = False)
