@@ -71,7 +71,7 @@ def test_forces():
             NLensemble.structures[0].coords = np.copy(NLensemble.xats[0])
 
             # Compute FORCES AND ENERGIES
-            NLensemble.compute_ensemble(ff_calculator, compute_stress = False)
+            NLensemble.compute_ensemble(ff_calculator, compute_stress = False, verbose = False)
 
             energy.append(NLensemble.energies[0])
             force.append(NLensemble.forces[0,0,coord])
